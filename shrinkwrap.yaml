@@ -3,6 +3,8 @@ dependencies:
   base64-to-image: 1.0.2
   body-parser: 1.19.0
   express: 4.17.1
+  jsonbin-io-api: 1.0.2
+  le-ftp: 1.0.5
   telegraf: 3.35.0
 packages:
   /@types/node/13.1.2:
@@ -87,6 +89,10 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha512-+Hp8fLp57wnUSt0tY0tHEXh4voZRDnoIrZPqlo3DPiI4y9lwg/jqx+1Om94/W6ZaPDOUbnjOt/99w66zk+l1Xg==
+  /core-util-is/1.0.2:
+    dev: false
+    resolution:
+      integrity: sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
   /debug/2.6.9:
     dependencies:
       ms: 2.0.0
@@ -205,6 +211,15 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
+  /ftp/0.3.10:
+    dependencies:
+      readable-stream: 1.1.14
+      xregexp: 2.0.0
+    dev: false
+    engines:
+      node: '>=0.8.0'
+    resolution:
+      integrity: sha1-kZfYYa2BQvPmPVqDv+TFn3MwiF0=
   /http-errors/1.7.2:
     dependencies:
       depd: 1.1.2
@@ -251,6 +266,22 @@ packages:
       node: '>= 0.10'
     resolution:
       integrity: sha512-M4Sjn6N/+O6/IXSJseKqHoFc+5FdGJ22sXqnjTpdZweHK64MzEPAyQZyEU3R/KRv2GLoa7nNtg/C2Ev6m7z+eA==
+  /isarray/0.0.1:
+    dev: false
+    resolution:
+      integrity: sha1-ihis/Kmo9Bd+Cav8YDiTmwXR7t8=
+  /jsonbin-io-api/1.0.2:
+    dependencies:
+      node-fetch: 2.6.0
+    dev: false
+    resolution:
+      integrity: sha512-+Yf8hyy5IscDjoA+VDXm4ko9XkdXxvbDPAyrJeGzdyDBaJev8Ay1KvVnBwivoT+c2HQGlgdScfHq0JXOdH/fUQ==
+  /le-ftp/1.0.5:
+    dependencies:
+      ftp: 0.3.10
+    dev: false
+    resolution:
+      integrity: sha1-zF1tg/dmmNLeoOBDe7zG1K3J2BE=
   /media-typer/0.3.0:
     dev: false
     engines:
@@ -370,6 +401,15 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha512-4Oz8DUIwdvoa5qMJelxipzi/iJIi40O5cGV1wNYp5hvZP8ZN0T+jiNkL0QepXs+EsQ9XJ8ipEDoiH70ySUJP3Q==
+  /readable-stream/1.1.14:
+    dependencies:
+      core-util-is: 1.0.2
+      inherits: 2.0.4
+      isarray: 0.0.1
+      string_decoder: 0.10.31
+    dev: false
+    resolution:
+      integrity: sha1-fPTFTvZI44EwhMY23SB54WbAgdk=
   /safe-buffer/5.1.2:
     dev: false
     resolution:
@@ -425,6 +465,10 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
+  /string_decoder/0.10.31:
+    dev: false
+    resolution:
+      integrity: sha1-YuIDvEF2bGwoyfyEMB2rHFMQ+pQ=
   /telegraf/3.35.0:
     dependencies:
       '@types/node': 13.1.2
@@ -481,6 +525,10 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
+  /xregexp/2.0.0:
+    dev: false
+    resolution:
+      integrity: sha1-UqY+VsoLhKfzpfPWGHLxJq16WUM=
 registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
@@ -489,4 +537,6 @@ specifiers:
   base64-to-image: ^1.0.2
   body-parser: ^1.19.0
   express: ^4.17.1
+  jsonbin-io-api: ^1.0.2
+  le-ftp: ^1.0.4
   telegraf: ^3.35.0

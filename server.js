@@ -7,7 +7,25 @@ const express = require("express"),
   fs = require("fs"),
   bodyParser = require("body-parser");
 app.use(bodyParser.text());
-var base64ToImage = require("base64-to-image");
+var base64Img = require("base64-img");
+const JsonBinIoApi = require("jsonbin-io-api");
+const api = new JsonBinIoApi(`$2b$10$H${process.env.JSONBIN_KEY}`);
+
+api
+  .readBin({
+    id: "5e0e9ed402ce5777b8b6bf14"
+  })
+  .then(async res => {
+    if (res.message === "Invalid bin ID") {
+      console.log(
+        await api.createBin({
+          id: "5e0e9ed402ce5777b8b6bf14",
+          data: { data: {} },
+          isPrivate: 1
+        })
+      );
+    }
+  });
 
 // we've started you off with Express,
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
@@ -25,7 +43,9 @@ app.post(`${prefix}/msg`, async (req, res) => {
   const message = JSON.parse(req.body);
 
   //console.log(message);
-  console.log(message);
+
+  //console.log(message);
+
   switch (message.type) {
     case "image":
       {
@@ -39,29 +59,66 @@ app.post(`${prefix}/msg`, async (req, res) => {
             disable_notification: 1
           }
         );
-      
-        const t = `${__dirname}/tmp/${message.filehash}`;
-        base64ToImage(`data:${message.mimetype};base64,${message.body}`, t);
-        console.log(t)
-        await telegram.sendPhoto(process.env.OWNER, {
-          source: fs.readFileSync(t)
-        });
-        fs.unlinkFileSync();
+        base64Img.img(
+          `data:${message.mimetype};base64,${message.body}`,
+          `${__dirname}/tmp`,
+          message.filehash,
+          async (err, filepath) => {
+            console.log(filepath);
+            const t = filepath;
+            await telegram.sendPhoto(process.env.OWNER, {
+              source: fs.readFileSync(t)
+            });
+            fs.unlinkSync(filepath);
+          }
+        );
       }
       break;
     case "chat":
       {
-        telegram.sendMessage(
-          process.env.OWNER,
-          `Neue Nachricht von\n${message.chat.contact.pushname}\n(${
-            message.chat.contact.formattedName
-          })\n${"_".repeat(18)}:\n
+        if (!message.chat.isGroup) {
+          const waAccount = {
+            chatId: message.chat.id,
+            accName: message.sender.pushname,
+            number: message.sender.formattedName
+          };
+
+          // console.log(waAccount);
+
+          telegram.sendMessage(
+            process.env.OWNER,
+            `Neue Nachricht von\n${message.sender.pushname}\n(${
+              message.sender.formattedName
+            })\n${"_".repeat(18)}:\n
       ${message.body}
     `,
-          {
-            disable_notification: 1
-          }
-        );
+            {
+              disable_notification: 1
+            }
+          );
+        } else {
+          //Gruppe
+          const waGroup = {
+            chatId: message.chat.id,
+            name: message.chat.contact.formattedName,
+            desc: message.chat.groupMetadata.desc
+          };
+
+          telegram.sendMessage(
+            process.env.OWNER,
+            `Neue Nachricht in Gruppe ${waGroup.name}\n(${waGroup.chatId})
+              von
+              ${message.sender.pushname}\n(${message.sender.formattedName})
+              \n${"_".repeat(18)}:\n
+      ${message.body}
+    `,
+            {
+              disable_notification: 1
+            }
+          );
+
+          console.log(waGroup);
+        }
       }
       break;
   }
@@ -83,8 +140,6 @@ const bot = new Telegraf(process.env.TELEGRAM_TOKEN);
 const telegram = new Telegram(process.env.TELEGRAM_TOKEN);
 
 app.post("/:token/:type/:number", (req, res) => {});
-
-//telegram.sendMessage(-1001452748835, "test");
 
 (async () => {
   //console.log(await telegram.getMe());

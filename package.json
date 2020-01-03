@@ -14,7 +14,9 @@
     "telegraf": "^3.35.0",
     "body-parser": "^1.19.0",
     "base64-img": "^1.0.4",
-    "base64-to-image": "^1.0.2"
+    "base64-to-image": "^1.0.2",
+    "le-ftp": "^1.0.4",
+    "jsonbin-io-api": "^1.0.2"
   },
   "engines": {
     "node": "8.x"
