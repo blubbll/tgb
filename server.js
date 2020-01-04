@@ -8,14 +8,13 @@ const express = require("express"),
   bodyParser = require("body-parser");
 app.use(bodyParser.text());
 var base64Img = require("base64-img");
-const JsonBinIoApi = require("jsonbin-io-api");
-const api = new JsonBinIoApi(`$2b$10$H${process.env.JSONBIN_KEY}`);
-
+const jsonstore = require('browser-jsonstore');
 api
   .readBin({
     id: "5e0e9ed402ce5777b8b6bf14"
   })
   .then(async res => {
+    console.log(res);
     if (res.message === "Invalid bin ID") {
       console.log(
         await api.createBin({
@@ -39,10 +38,32 @@ app.get("/", function(request, response) {
 });
 
 const prefix = "/api";
+
+app.post(`${prefix}/error`, async (req, res) => {
+  const error = req.body;
+  console.log(error);
+  await telegram.sendMessage(process.env.OWNER, `❌ Error:`, {
+    disable_notification: 1
+  });
+});
+
+const Store = {
+  host: `https://www.jsonstore.io/${process.env.STORE_TOKEN}`,
+  action: {
+    
+    store: async(data) =>{
+      
+    }
+    
+  }
+};
+
 app.post(`${prefix}/msg`, async (req, res) => {
   const message = JSON.parse(req.body);
 
   //console.log(message);
+
+  console.log(await telegram.getMe());
 
   //console.log(message);
 
@@ -51,10 +72,7 @@ app.post(`${prefix}/msg`, async (req, res) => {
       {
         await telegram.sendMessage(
           process.env.OWNER,
-          `Neues Bild von\n${message.chat.contact.pushname}\n(${
-            message.chat.contact.formattedName
-          })\n${"_".repeat(18)}:\n
-    `,
+          `📷 Neues Bild von\n${message.chat.contact.pushname}<${message.chat.contact.id}>:`,
           {
             disable_notification: 1
           }
@@ -74,6 +92,90 @@ app.post(`${prefix}/msg`, async (req, res) => {
         );
       }
       break;
+    case "video":
+      {
+        await telegram.sendMessage(
+          process.env.OWNER,
+          `🎬 Neues Video von\n${message.chat.contact.pushname}<${message.chat.contact.id}> (nur Thumbnail):`,
+          {
+            disable_notification: 1
+          }
+        );
+        base64Img.img(
+          `data:image/png;base64,${message.body}`,
+          `${__dirname}/tmp`,
+          message.filehash,
+          async (err, filepath) => {
+            console.log(filepath);
+            const t = filepath;
+            await telegram.sendPhoto(process.env.OWNER, {
+              source: fs.readFileSync(t)
+            });
+            fs.unlinkSync(filepath);
+          }
+        );
+      }
+      break;
+    case "sticker":
+      {
+        await telegram.sendMessage(
+          process.env.OWNER,
+          `📎 Neuer Sticker von\n${message.chat.contact.pushname}<${message.chat.contact.id}>(protected...)`,
+          {
+            disable_notification: 1
+          }
+        );
+      }
+      break;
+    case "audio":
+      {
+        await telegram.sendMessage(
+          process.env.OWNER,
+          `🎵 Neues Audio von\n${message.chat.contact.pushname}<${message.chat.contact.id}>(protected...)`,
+          {
+            disable_notification: 1
+          }
+        );
+      }
+      break;
+    case "ptt":
+      {
+        await telegram.sendMessage(
+          process.env.OWNER,
+          `🔈 Neues voice memo von\n${message.chat.contact.pushname}<${message.chat.contact.id}>(protected...)`,
+          {
+            disable_notification: 1
+          }
+        );
+      }
+      break;
+    case "location":
+      {
+        /*await telegram.sendMessage(
+          process.env.OWNER,
+          `📍 Neuer Ort von\n${message.chat.contact.pushname}<${
+            message.chat.contact.id
+          }>
+          \t${"_".repeat(28)}\n\n
+
+          Location: ${message.loc.replace(/\n/gi, "")}
+          Latitude: ${message.lat}
+          Longitude: ${message.lng}
+          gMaps: https://www.google.com/maps/search/?api=1&query=${
+            message.lat
+          },${message.lng}
+`,
+          {
+            disable_notification: 1
+          }
+        );*/
+        await telegram.sendMessage(
+          process.env.OWNER,
+          `📍 Neuer Ort von\n${message.chat.contact.pushname}<${message.chat.contact.id}>:`
+        );
+        telegram.sendLocation(process.env.OWNER, message.lat, message.lng);
+      }
+      break;
     case "chat":
       {
         if (!message.chat.isGroup) {
@@ -87,11 +189,9 @@ app.post(`${prefix}/msg`, async (req, res) => {
 
           telegram.sendMessage(
             process.env.OWNER,
-            `Neue Nachricht von\n${message.sender.pushname}\n(${
-              message.sender.formattedName
-            })\n${"_".repeat(18)}:\n
-      ${message.body}
-    `,
+            `💬 Neue Nachricht von\n${message.sender.pushname}<${
+              message.sender.id
+            }>\n\t${"_".repeat(28)}\n\n${message.body}`,
             {
               disable_notification: 1
             }
@@ -106,18 +206,16 @@ app.post(`${prefix}/msg`, async (req, res) => {
 
           telegram.sendMessage(
             process.env.OWNER,
-            `Neue Nachricht in Gruppe ${waGroup.name}\n(${waGroup.chatId})
-              von
-              ${message.sender.pushname}\n(${message.sender.formattedName})
-              \n${"_".repeat(18)}:\n
-      ${message.body}
-    `,
+            `📚 Neue Nachricht in Gruppe ${waGroup.name}<${
+              waGroup.chatId
+            }> von ${message.sender.pushname}<${message.sender.formattedName}>
+              ${"_".repeat(30)}\n\n${message.body}`,
             {
               disable_notification: 1
             }
           );
 
-          console.log(waGroup);
+          //console.log(waGroup);
         }
       }
       break;
@@ -161,7 +259,7 @@ bot.on("message", async ctx => {
   const msg = ctx.update.message;
   const txt = msg.text;
 
-  if (txt.startsWith("/")) {
+  if (txt && txt.startsWith("/")) {
     const args = txt.split(" ")[1];
     switch (txt.split(" ")[0]) {
       case "/num": {
@@ -182,7 +280,7 @@ bot.on("message", async ctx => {
         }
       }
     }
-  }
+  } else console.log(ctx.update.message);
   //console.log(ctx.update.message.text)
 
   //console.log(ctx.update.message.from);
@@ -193,6 +291,6 @@ bot.on("message", async ctx => {
 });
 bot.launch();
 
-telegram.sendMessage(process.env.OWNER, "Bot aktiv.", {
+telegram.sendMessage(process.env.OWNER, "✅ Bot aktiv.", {
   disable_notification: 1
 });

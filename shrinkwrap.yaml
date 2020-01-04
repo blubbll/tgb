@@ -2,6 +2,7 @@ dependencies:
   base64-img: 1.0.4
   base64-to-image: 1.0.2
   body-parser: 1.19.0
+  browser-jsonstore: 1.0.1
   express: 4.17.1
   jsonbin-io-api: 1.0.2
   le-ftp: 1.0.5
@@ -59,6 +60,10 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha512-dhEPs72UPbDnAQJ9ZKMNTP6ptJaionhP5cBb541nXPlW60Jepo9RV/a4fX4XWW9CuFNK22krhrj1+rgzifNCsw==
+  /browser-jsonstore/1.0.1:
+    dev: false
+    resolution:
+      integrity: sha512-x1u4bRRNj5B0qJHH8k2v7XKoYqvUKnHCnXVRAjh9Uz5HnWsjsrN7RvTpBgqPlEqL2oadeJTgYbFqWzKAZ0kxRg==
   /bytes/3.1.0:
     dev: false
     engines:
@@ -536,6 +541,7 @@ specifiers:
   base64-img: ^1.0.4
   base64-to-image: ^1.0.2
   body-parser: ^1.19.0
+  browser-jsonstore: ^1.0.1
   express: ^4.17.1
   jsonbin-io-api: ^1.0.2
   le-ftp: ^1.0.4
