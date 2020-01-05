@@ -16,6 +16,7 @@
     "browser-jsonstore": "^1.0.1",
     "browserchannel": "^2.1.0",
     "cors": "^2.8.5",
+    "eventemitter3": "^3.1.2",
     "express": "^4.17.1",
     "fetch": "^1.1.0",
     "jsonbin-io-api": "^1.0.2",
