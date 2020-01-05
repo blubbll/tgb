@@ -5,32 +5,18 @@
 const express = require("express"),
   app = express(),
   fs = require("fs"),
-  bodyParser = require("body-parser");
-app.use(bodyParser.text());
-var base64Img = require("base64-img");
-const jsonstore = require('browser-jsonstore');
-api
-  .readBin({
-    id: "5e0e9ed402ce5777b8b6bf14"
-  })
-  .then(async res => {
-    console.log(res);
-    if (res.message === "Invalid bin ID") {
-      console.log(
-        await api.createBin({
-          id: "5e0e9ed402ce5777b8b6bf14",
-          data: { data: {} },
-          isPrivate: 1
-        })
-      );
-    }
-  });
+  bodyParser = require("body-parser"),
+  base64Img = require("base64-img"),
+  jsonstore = require("./!.jsonstore"),
+  cors = require("cors");
 
-// we've started you off with Express,
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
-
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static("public"));
+app.use([bodyParser.text(), express.json(), express.static("public")]);
+app.use("*", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  next();
+});
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function(request, response) {
@@ -47,23 +33,18 @@ app.post(`${prefix}/error`, async (req, res) => {
   });
 });
 
-const Store = {
-  host: `https://www.jsonstore.io/${process.env.STORE_TOKEN}`,
-  action: {
-    
-    store: async(data) =>{
-      
-    }
-    
-  }
-};
+const Store = jsonstore(process.env.STORE_TOKEN);
 
 app.post(`${prefix}/msg`, async (req, res) => {
   const message = JSON.parse(req.body);
 
-  //console.log(message);
+  // console.log(message);
 
-  console.log(await telegram.getMe());
+  const wapContext = await Store.get(`wac/${message.chat.id}`);
+
+  console.log(wapContext);
+
+  //console.log(await telegram.getMe());
 
   //console.log(message);
 
@@ -224,13 +205,6 @@ app.post(`${prefix}/msg`, async (req, res) => {
   res.end();
 });
 
-app.use(express.json());
-
-// listen for requests :)
-const listener = app.listen(process.env.PORT, function() {
-  console.log("Your app is listening on port " + listener.address().port);
-});
-
 const Telegraf = require("telegraf");
 const Telegram = require("telegraf/telegram");
 
@@ -243,14 +217,32 @@ app.post("/:token/:type/:number", (req, res) => {});
   //console.log(await telegram.getMe());
 })();
 
-{
-  //confdir
-  const confDir = `${__dirname}/conf`;
-  !fs.existsSync(confDir) && fs.mkdirSync(confDir);
-  //numsdir
-  const numsDir = `${confDir}/nums`;
-  !fs.existsSync(numsDir) && fs.mkdirSync(numsDir);
-}
+var browserChannel = require("browserchannel").server;
+//browserchannel
+app.use(
+  browserChannel(
+    {
+      base: `/channel`
+    },
+    session => {
+      console.log(
+        "New session: " +
+          session.id +
+          " from " +
+          session.address +
+          " with cookies " +
+          session.headers.cookie
+      );
+      session.on("message", data => {
+        console.log(data);
+        session.send();
+      });
+      session.on("close", reason => {
+        console.log(session.id + " disconnected (" + reason + ")");
+      });
+    }
+  )
+);
 
 const numsDir = `${__dirname}/conf/nums`;
 !fs.existsSync(numsDir) && fs.mkdirSync(numsDir);
@@ -293,4 +285,9 @@ bot.launch();
 
 telegram.sendMessage(process.env.OWNER, "✅ Bot aktiv.", {
   disable_notification: 1
+});
+
+// listen for requests :)
+const listener = app.listen(process.env.PORT, function() {
+  console.log("Your app is listening on port " + listener.address().port);
 });
