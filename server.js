@@ -59,7 +59,11 @@ const express = require("express"),
   jsonstore = require("./!.jsonstore"),
   cors = require("cors");
 
-console.log(process.env.ACTIVE);
+//glitch-active
+app.get("/ping", (req, res) => {
+  res.json("pong");
+});
+
 if (process.env.ACTIVE !== "false") {
   app.use([bodyParser.text(), express.json(), express.static("public")]);
   app.use("*", (req, res, next) => {
@@ -374,6 +378,8 @@ if (process.env.ACTIVE !== "false") {
   }, 4999);
 
   bot.on("message", async ctx => {
+    console.log("Got message.");
+
     const msg = ctx.update.message;
     const txt = msg.text;
 
@@ -597,4 +603,5 @@ if (process.env.ACTIVE !== "false") {
       });
     return output;
   };
+  console.log(`Bot is active. Version: ${process.env.VERSION}.`);
 } else console.log("Project is inactive right now.");

@@ -25,6 +25,7 @@
     "jsonbin-io-api": "^1.0.2",
     "le-ftp": "^1.0.4",
     "node-fetch": "^2.6.0",
+    "request": "^2.88.0",
     "telegraf": "^3.35.0"
   },
   "engines": {

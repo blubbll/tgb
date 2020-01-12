@@ -207,6 +207,7 @@
               if (
                 !fd.startsWith(".") &&
                 ![
+                  "./data",
                   "/app",
                   "/app/node_modules",
                   "/app/package-lock.json"
