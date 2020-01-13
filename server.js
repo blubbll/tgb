@@ -74,8 +74,8 @@ if (process.env.ACTIVE !== "false") {
   });
 
   // http://expressjs.com/en/starter/basic-routing.html
-  app.get("/", function(request, response) {
-    response.sendFile(__dirname + "/views/index.html");
+  app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/views/index.html");
   });
 
   const prefix = "/api";
@@ -92,14 +92,25 @@ if (process.env.ACTIVE !== "false") {
     );
   });
 
+  app.post(`${prefix}/status`, async (req, res) => {
+    const status = req.body;
+    console.log(status);
+    await telegram.sendMessage(
+      process.env.OWNER,
+      `❌ Error: ${JSON.stringfy(status)}`,
+      {
+        disable_notification: 1
+      }
+    );
+  });
+
   const Store = jsonstore(process.env.STORE_TOKEN);
 
   app.post(`${prefix}/msg`, async (req, res) => {
     const message = JSON.parse(req.body);
 
-    // console.log(message);
-
     let waChats = await Store.get(`waChats`);
+
     if (waChats === null) {
       waChats = {};
       await Store.post(`waChats`, waChats);
@@ -315,6 +326,7 @@ if (process.env.ACTIVE !== "false") {
 
     //only reply to pms
     if (!message.isGroupMsg) {
+      console.log("emitting reply..");
       const m = "✓ Nachricht wurde weitergeleitet";
       emitter.emit("event", {
         type: "msg",
@@ -345,7 +357,7 @@ if (process.env.ACTIVE !== "false") {
   const EventEmitter = require("eventemitter3");
   const emitter = new EventEmitter();
 
-  app.get(`/events/${process.env.WAE_TOKEN}`, cors(), (req, res) => {
+  app.get(`/events/${process.env.BRIDGE_TOKEN}`, cors(), (req, res) => {
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
@@ -516,7 +528,7 @@ if (process.env.ACTIVE !== "false") {
   });
   bot.launch();
 
-  telegram.sendMessage(process.env.OWNER, "✅ Bot aktiv.", {
+  telegram.sendMessage(process.env.OWNER, "✅ tg_Bot aktiv.", {
     disable_notification: 1
   });
 
