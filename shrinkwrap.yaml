@@ -14,6 +14,7 @@ dependencies:
   gists: 2.0.0
   glob: 7.1.6
   jsonbin-io-api: 1.0.2
+  moment: 2.24.0
   node-fetch: 2.6.0
   request: 2.88.0
   telegraf: 3.35.0
@@ -2093,6 +2094,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-A/78XjoX2EmNvppVWEhM2oGk3x4lLxnkEA4jTbaK97QKSDjkIoOsKQlfylt/d3kKKi596Qy3NP5XrXJ6fZIC9Q==
+  /moment/2.24.0:
+    dev: false
+    resolution:
+      integrity: sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
   /ms/2.0.0:
     dev: false
     resolution:
@@ -3776,6 +3781,7 @@ specifiers:
   gists: ^2.0.0
   glob: ^7.1.6
   jsonbin-io-api: ^1.0.2
+  moment: ^2.24.0
   node-fetch: ^2.6.0
   request: ^2.88.0
   telegraf: ^3.35.0

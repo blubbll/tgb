@@ -57,7 +57,10 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   base64Img = require("base64-img"),
   jsonstore = require("./!.jsonstore"),
-  cors = require("cors");
+  cors = require("cors"),
+  moment = require("moment");
+
+moment.locale("de");
 
 //glitch-active
 app.get("/ping", (req, res) => {
@@ -94,10 +97,10 @@ if (process.env.ACTIVE !== "false") {
 
   app.post(`${prefix}/status`, async (req, res) => {
     const status = req.body;
-    console.log(status);
+    //console.log(status);
     await telegram.sendMessage(
       process.env.OWNER,
-      `❌ Error: ${JSON.stringfy(status)}`,
+      `Status (wa): ${JSON.stringfy(status)}`,
       {
         disable_notification: 1
       }
@@ -327,16 +330,17 @@ if (process.env.ACTIVE !== "false") {
     //only reply to pms
     if (!message.isGroupMsg) {
       console.log("emitting reply..");
-      const m = "✓ Nachricht wurde weitergeleitet";
+      /*const m = "✓ Nachricht wurde weitergeleitet";
       emitter.emit("event", {
         type: "msg",
         data: {
+          ts: +new Date(),
           to: key,
           text: `✓ 𝘕𝘢𝘤𝘩𝘳𝘪𝘤𝘩𝘵 𝘸𝘶𝘳𝘥𝘦 𝘸𝘦𝘪𝘵𝘦𝘳𝘨𝘦𝘭𝘦𝘪𝘵𝘦𝘵. \n${transform(
             "Melde mich später…"
-          )}\n~ℝ𝕦𝕓𝕖𝕟`
+          )}\n${process.env.OWNER_NAME}`
         }
-      });
+      });*/
     }
 
     res.end();
@@ -371,6 +375,8 @@ if (process.env.ACTIVE !== "false") {
     const hbt = setInterval(nln, 15000);
 
     const onEvent = data => {
+      //console.log(data)
+      //console.log(data)
       res.write("retry: 500\n");
       res.write(`event: event\n`);
       res.write(`data: ${JSON.stringify(data)}\n\n`);
@@ -457,7 +463,7 @@ if (process.env.ACTIVE !== "false") {
             await Store.post(`waChats`, JSON.stringify(waChats));
             console.log("waChats updated.");
 
-            //only notify if not in db already with diff number
+            //only notify if not in db already
             _tId === null &&
               emitter.emit("event", {
                 type: "msg",
@@ -484,6 +490,9 @@ if (process.env.ACTIVE !== "false") {
                 reqChat.no
               }\nWa-Account[${key}]].\nLetztes Update:\n${new Date()}`
             );
+
+            telegram.setChatPhoto(msg.chat.id, "==");
+
             ctx.reply("✅ Gateway-Konfiguration erfolgreich aktualisiert!");
           } catch (e) {
             ctx.reply(`${e.description}\n⚠️`);
@@ -508,12 +517,13 @@ if (process.env.ACTIVE !== "false") {
         }
       }
 
+      //falls Chat vorhanden ist, leite Nachricht an WhatsApp weiter
       if (reqChat) {
         emitter.emit("event", {
           type: "msg",
           data: {
             to: key,
-            text: transform(txt)
+            text: `‎\n\t${txt}\n${"▁".repeat(8)}\n\t${process.env.SIGNATURE}`
           }
         });
       }
@@ -528,9 +538,13 @@ if (process.env.ACTIVE !== "false") {
   });
   bot.launch();
 
-  telegram.sendMessage(process.env.OWNER, "✅ tg_Bot aktiv.", {
-    disable_notification: 1
-  });
+  telegram.sendMessage(
+    process.env.OWNER,
+    `✅ [${process.env.VERSION}] tg_Bot aktiv.`,
+    {
+      disable_notification: 1
+    }
+  );
 
   // listen for requests :)
   const listener = app.listen(process.env.PORT, function() {

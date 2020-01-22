@@ -25,6 +25,7 @@
     "gists": "^2.0.0",
     "glob": "^7.1.6",
     "jsonbin-io-api": "^1.0.2",
+    "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
     "request": "^2.88.0",
     "telegraf": "^3.35.0"
