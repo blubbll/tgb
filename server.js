@@ -170,6 +170,7 @@ if (process.env.ACTIVE !== "false") {
 
     //console.log(message);
 
+    //pushname is undefined on first contact
     switch (message.type) {
       case "chat":
         {
@@ -546,7 +547,9 @@ if (process.env.ACTIVE !== "false") {
           type: "msg",
           data: {
             to: key,
-            text: `‎\n\t${txt}\n${"▁".repeat(6)}\n${process.env.SIGNATURE}`
+            text: `‎\n\t${txt.replace(/(\r\n|\n|\r)/gm, "\n\t")}\n${"▁".repeat(
+              8
+            )}\n${process.env.SIGNATURE}`
           }
         });
       }
@@ -654,3 +657,24 @@ if (process.env.ACTIVE !== "false") {
   };
   console.log(`Bot is active. Version: ${process.env.VERSION}.`);
 } else console.log("Project is inactive right now.");
+
+const restartHours = 15;
+setTimeout(() => {
+  process.on("exit", () => {
+    require("child_process").spawn(process.argv.shift(), process.argv, {
+      cwd: process.cwd(),
+      detached: true,
+      stdio: "inherit"
+    });
+  });
+
+  //restart telegrambot
+  require("request")(
+    `https://${process.env.WABOT_HOST}/restart/${process.env.BRIDGE_TOKEN}`,
+    (error, response, body) => {
+      console.log(error || body);
+
+      process.exit();
+    }
+  );
+}, 1000 * 60 * 60 * restartHours); //restart every x hours
