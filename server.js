@@ -50,6 +50,13 @@
   } else require(`./${script}`)({ env: true }); //apply env on deployed server
 })();
 
+//restart wabot when tgb (re)started
+if (!process.env.PROJECT_NAME) {
+  require("request")(
+    `https://${process.env.WABOT_HOST}/restart/${process.env.BRIDGE_TOKEN}`
+  );
+}
+
 // init project
 const express = require("express"),
   app = express(),
@@ -60,6 +67,7 @@ const express = require("express"),
   cors = require("cors"),
   moment = require("moment");
 
+//setup moment language
 moment.locale("de");
 
 app.get(`/restart/${process.env.BRIDGE_TOKEN}`, (req, res) => {
