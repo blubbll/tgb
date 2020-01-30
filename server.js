@@ -159,8 +159,9 @@ if (process.env.ACTIVE !== "false") {
       dest = reqChat.tId === null ? process.env.OWNER : reqChat.tId;
     }
 
-    if (await telegram.getChat(dest).title.includes("undefined")) {
-      updateChatTitle(reqChat);
+    //fx ye olde broken chat titles
+    if ((await telegram.getChat(dest)).title.includes("undefined")) {
+      await updateChatTitle(reqChat);
     }
 
     //console.log(waChats);
