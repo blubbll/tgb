@@ -154,8 +154,13 @@ if (process.env.ACTIVE !== "false") {
       await Store.post(`waChats`, JSON.stringify(waChats));
       console.log("waChats updated.");
       dest = process.env.OWNER;
+      reqChat = newChat;
     } else {
       dest = reqChat.tId === null ? process.env.OWNER : reqChat.tId;
+    }
+
+    if (await telegram.getChat(dest).title.includes("undefined")) {
+      updateChatTitle(reqChat);
     }
 
     //console.log(waChats);
@@ -339,9 +344,10 @@ if (process.env.ACTIVE !== "false") {
         break;
     }
 
+    console.log(`processing message of ${message.sender.formattedName}`);
+
     //only reply to pms
     if (!message.isGroupMsg) {
-      console.log("emitting reply..");
       /*const m = "✓ Nachricht wurde weitergeleitet";
       emitter.emit("event", {
         type: "msg",
@@ -372,6 +378,13 @@ if (process.env.ACTIVE !== "false") {
 
   const EventEmitter = require("eventemitter3");
   const emitter = new EventEmitter();
+
+  const updateChatTitle = async reqChat => {
+    return telegram.setChatTitle(
+      reqChat.tId,
+      `${reqChat.group ? "👥" : "📞"}~${reqChat.nick}`
+    );
+  };
 
   app.get(`/events/${process.env.BRIDGE_TOKEN}`, cors(), (req, res) => {
     res.writeHead(200, {
@@ -447,13 +460,13 @@ if (process.env.ACTIVE !== "false") {
                 break;
               }
             }
-            console.log(key);
             delete waChats[key];
 
             await Store.post(`waChats`, JSON.stringify(waChats));
-            ctx.reply("✓Chat was removed from database");
+            ctx.reply(`✓ User ${reqChat.no} was removed from database.`);
           }
           break;
+
         case "/set": {
           const key = args;
 
@@ -492,10 +505,7 @@ if (process.env.ACTIVE !== "false") {
           }
 
           try {
-            await telegram.setChatTitle(
-              msg.chat.id,
-              `${reqChat.group ? "👥" : "📞"}~${reqChat.nick}`
-            );
+            await updateChatTitle(reqChat);
             await telegram.setChatDescription(
               msg.chat.id,
               `WhatsApp-Gateway für Nummer ${
