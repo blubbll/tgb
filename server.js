@@ -62,6 +62,18 @@ const express = require("express"),
 
 moment.locale("de");
 
+app.get(`/restart/${process.env.BRIDGE_TOKEN}`, (req, res) => {
+  process.on("exit", () => {
+    require("child_process").spawn(process.argv.shift(), process.argv, {
+      cwd: process.cwd(),
+      detached: true,
+      stdio: "inherit"
+    });
+  });
+  res.json(`restarted tgbot [${process.env.VERSION}]`);
+  process.exit();
+});
+
 //glitch-active
 app.get("/ping", (req, res) => {
   res.json("pong");
@@ -518,12 +530,12 @@ if (process.env.ACTIVE !== "false") {
       }
 
       //falls Chat vorhanden ist, leite Nachricht an WhatsApp weiter
-      if (reqChat) {
+      if (reqChat && txt) {
         emitter.emit("event", {
           type: "msg",
           data: {
             to: key,
-            text: `‎\n\t${txt}\n${"▁".repeat(8)}\n\t${process.env.SIGNATURE}`
+            text: `‎\n\t${txt}\n${"▁".repeat(6)}\n${process.env.SIGNATURE}`
           }
         });
       }
