@@ -56,7 +56,44 @@ if (!process.env.PROJECT_NAME) {
     `https://${process.env.WABOT_HOST}/restart/${process.env.BRIDGE_TOKEN}`
   );
 }
-
+/*
+        const conn = await $.get("userftpPool").getConnection();
+        const creds = await conn.getById(process.env.DB_USERFTPS_TABL, id);
+        if (!!creds) {
+          //GET TOKEN
+          _.fetch(
+            `${process.env.FTPVAULT_APIHOST}/auth/${process.env.FTPVAULT_API_TOKEN}/${process.env.FTPVAULT_API_USER}/${process.env.FTPVAULT_API_PASS}`
+          ).then(response => {
+            return response.json().then(json => {
+              if (json.result === "success") {
+                const token = json.session.sessionToken;
+                //CREATE REMOTE DIR
+                _.fetch(
+                  `${process.env.FTPVAULT_APIHOST}/ftpaccount/${token}/delete`,
+                  {
+                    body: JSON.stringify({
+                      id: creds.ftp_user
+                    }),
+                    method: "POST"
+                  }
+                ) //CREATE REMOTE ACC
+                  .then(response => {
+                    return response.json().then(async json => {
+                      if (json.result === "success") {
+                        const newCreds = await createFtp(creds.id);
+                        creds.ftp_user = newCreds.user;
+                        creds.ftp_pass = newCreds.pass;
+                        await conn.upsert(process.env.DB_USERFTPS_TABL, creds);
+                        resolve(newCreds);
+                      } else reject(json);
+                    });
+                  });
+              } else reject(json);
+            });
+          });
+        } else reject("No creds found");
+        conn.end();
+*/
 // init project
 const express = require("express"),
   app = express(),
@@ -410,8 +447,6 @@ if (process.env.ACTIVE !== "false") {
     const hbt = setInterval(nln, 15000);
 
     const onEvent = data => {
-      //console.log(data)
-      //console.log(data)
       res.write("retry: 500\n");
       res.write(`event: event\n`);
       res.write(`data: ${JSON.stringify(data)}\n\n`);
