@@ -16,19 +16,20 @@
     "browser-jsonstore": "^1.0.1",
     "browserchannel": "^2.1.0",
     "cors": "^2.8.5",
-    "download": "^7.1.0",
-    "eventemitter3": "^3.1.2",
+    "download": "^8.0.0",
+    "eventemitter3": "^4.0.0",
     "express": "^4.17.1",
     "fetch": "^1.1.0",
     "ftp": "^0.3.10",
     "gist-client": "^1.1.0",
     "gists": "^2.0.0",
     "glob": "^7.1.6",
-    "jsonbin-io-api": "^1.0.2",
     "moment": "^2.24.0",
+    "mysql-easier": "^2.1.0",
     "node-fetch": "^2.6.0",
-    "request": "^2.88.0",
-    "telegraf": "^3.35.0"
+    "node-global-storage": "^1.2.3",
+    "request": "^2.88.2",
+    "telegraf": "^3.37.0"
   },
   "engines": {
     "node": "8.x"

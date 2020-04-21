@@ -56,6 +56,59 @@ if (!process.env.PROJECT_NAME) {
     `https://${process.env.WABOT_HOST}/restart/${process.env.BRIDGE_TOKEN}`
   );
 }
+
+// init project
+const express = require("express"),
+  app = express(),
+  fs = require("fs"),
+  $ = require("node-global-storage"),
+  bodyParser = require("body-parser"),
+  base64Img = require("base64-img"),
+  cors = require("cors"),
+  mySqlEasier= require("mysql-easier"),
+  moment = require("moment");
+
+//setup moment language
+moment.locale("de");
+
+//restart self
+app.get(`/restart/${process.env.BRIDGE_TOKEN}`, (req, res) => {
+  process.on("exit", () => {
+    require("child_process").spawn(process.argv.shift(), process.argv, {
+      cwd: process.cwd(),
+      detached: true,
+      stdio: "inherit"
+    });
+  });
+  res.json(`restarted tgb [${process.env.VERSION}]`);
+  process.exit();
+});
+
+
+//contactDB
+const contactPool = $.set(
+    "contactPool",
+    mySqlEasier.createPool({
+      host: process.env.DB_CONTACT_HOST,
+      user: process.env.DB_CONTACT_USER,
+      password: process.env.DB_CONTACT_PASS,
+      database: process.env.DB_CONTACT_NAME
+    })
+  ),
+  getContacts = async () =>
+    new Promise(async (resolve, reject) => {
+      let dbusers;
+      const conn = await contactPool.getConnection();
+      conn.getAll("users").then(users => {
+        dbusers = users;
+        dbusers.sort((a, b) =>{
+          return a.name.length - b.name.length || a.localeCompare(b);
+        });
+        console.log("got users.");
+        return resolve(dbusers);
+      });
+      conn.done();
+    });
 /*
         const conn = await $.get("userftpPool").getConnection();
         const creds = await conn.getById(process.env.DB_USERFTPS_TABL, id);
@@ -94,30 +147,6 @@ if (!process.env.PROJECT_NAME) {
         } else reject("No creds found");
         conn.end();
 */
-// init project
-const express = require("express"),
-  app = express(),
-  fs = require("fs"),
-  bodyParser = require("body-parser"),
-  base64Img = require("base64-img"),
-  jsonstore = require("./!.jsonstore"),
-  cors = require("cors"),
-  moment = require("moment");
-
-//setup moment language
-moment.locale("de");
-
-app.get(`/restart/${process.env.BRIDGE_TOKEN}`, (req, res) => {
-  process.on("exit", () => {
-    require("child_process").spawn(process.argv.shift(), process.argv, {
-      cwd: process.cwd(),
-      detached: true,
-      stdio: "inherit"
-    });
-  });
-  res.json(`restarted tgbot [${process.env.VERSION}]`);
-  process.exit();
-});
 
 //glitch-active
 app.get("/ping", (req, res) => {
@@ -163,8 +192,6 @@ if (process.env.ACTIVE !== "false") {
       }
     );
   });
-
-  const Store = jsonstore(process.env.STORE_TOKEN);
 
   app.post(`${prefix}/msg`, async (req, res) => {
     const message = JSON.parse(req.body);
